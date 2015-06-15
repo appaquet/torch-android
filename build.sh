@@ -32,7 +32,7 @@ if [ $CMAKERET -ne 0 ]; then
  echo "CMake error. Exiting."
  exit $CMAKERET
 fi
-make install
+make install -j4
 MAKERET=$?
 if [ $MAKERET -ne 0 ]; then
  echo "make error. Exiting."
@@ -44,7 +44,7 @@ cd ../../
 echo "Copying libraries"
 rm -rf lib
 mkdir -p lib
-cp src/libs/armeabi-v7a/*.a lib/
+find ./src -name "*.a" -exec cp {} lib \;
 echo "done"
 
 # export lua sources

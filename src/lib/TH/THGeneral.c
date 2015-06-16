@@ -1,38 +1,56 @@
 #include "THGeneral.h"
 
+#ifndef TH_HAVE_THREAD
+#define __thread
+#endif
 /* Torch Error Handling */
-static void defaultTorchErrorHandlerFunction(const char *msg)
+static void defaultTorchErrorHandlerFunction(const char *msg, void *data)
 {
   printf("$ Error: %s\n", msg);
   exit(-1);
 }
 
-static void (*torchErrorHandlerFunction)(const char *msg) = defaultTorchErrorHandlerFunction;
+static __thread void (*torchErrorHandlerFunction)(const char *msg, void *data) = defaultTorchErrorHandlerFunction;
+static __thread void *torchErrorHandlerData;
 
-void THError(const char *fmt, ...)
+void _THError(const char *file, const int line, const char *fmt, ...)
 {
-  static char msg[1024];
+  char msg[2048];
   va_list args;
 
   /* vasprintf not standard */
   /* vsnprintf: how to handle if does not exists? */
   va_start(args, fmt);
-  vsnprintf(msg, 1024, fmt, args);
+  int n = vsnprintf(msg, 2048, fmt, args);
   va_end(args);
 
-  (*torchErrorHandlerFunction)(msg);
+  if(n < 2048) {
+    snprintf(msg + n, 2048 - n, " at %s:%d", file, line);
+  }
+
+  (*torchErrorHandlerFunction)(msg, torchErrorHandlerData);
 }
 
-void THSetErrorHandler( void (*torchErrorHandlerFunction_)(const char *msg) )
+void _THAssertionFailed(const char *file, const int line, const char *exp, const char *fmt, ...) {
+  char msg[1024];
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(msg, 1024, fmt, args);
+  va_end(args);
+  _THError(file, line, "Assertion `%s' failed. %s", exp, msg);
+}
+
+void THSetErrorHandler( void (*torchErrorHandlerFunction_)(const char *msg, void *data), void *data )
 {
   if(torchErrorHandlerFunction_)
     torchErrorHandlerFunction = torchErrorHandlerFunction_;
   else
     torchErrorHandlerFunction = defaultTorchErrorHandlerFunction;
+  torchErrorHandlerData = data;
 }
 
 /* Torch Arg Checking Handling */
-static void defaultTorchArgErrorHandlerFunction(int argNumber, const char *msg)
+static void defaultTorchArgErrorHandlerFunction(int argNumber, const char *msg, void *data)
 {
   if(msg)
     printf("$ Invalid argument %d: %s\n", argNumber, msg);
@@ -41,20 +59,36 @@ static void defaultTorchArgErrorHandlerFunction(int argNumber, const char *msg)
   exit(-1);
 }
 
-static void (*torchArgErrorHandlerFunction)(int argNumber, const char *msg) = defaultTorchArgErrorHandlerFunction;
+static __thread void (*torchArgErrorHandlerFunction)(int argNumber, const char *msg, void *data) = defaultTorchArgErrorHandlerFunction;
+static __thread void *torchArgErrorHandlerData;
 
-void THArgCheck(int condition, int argNumber, const char *msg)
+void _THArgCheck(const char *file, int line, int condition, int argNumber, const char *fmt, ...)
 {
-  if(!condition)
-    (*torchArgErrorHandlerFunction)(argNumber, msg);
+  if(!condition) {
+    char msg[2048];
+    va_list args;
+
+    /* vasprintf not standard */
+    /* vsnprintf: how to handle if does not exists? */
+    va_start(args, fmt);
+    int n = vsnprintf(msg, 2048, fmt, args);
+    va_end(args);
+
+    if(n < 2048) {
+      snprintf(msg + n, 2048 - n, " at %s:%d", file, line);
+    }
+
+    (*torchArgErrorHandlerFunction)(argNumber, msg, torchArgErrorHandlerData);
+  }
 }
 
-void THSetArgErrorHandler( void (*torchArgErrorHandlerFunction_)(int argNumber, const char *msg) )
+void THSetArgErrorHandler( void (*torchArgErrorHandlerFunction_)(int argNumber, const char *msg, void *data), void *data )
 {
   if(torchArgErrorHandlerFunction_)
     torchArgErrorHandlerFunction = torchArgErrorHandlerFunction_;
   else
     torchArgErrorHandlerFunction = defaultTorchArgErrorHandlerFunction;
+  torchArgErrorHandlerData = data;
 }
 
 void* THAlloc(long size)
@@ -67,7 +101,22 @@ void* THAlloc(long size)
   if(size == 0)
     return NULL;
 
-  ptr = malloc(size);
+  if (size > 5120)
+  {
+#if (defined(__unix) || defined(__APPLE__)) && (!defined(DISABLE_POSIX_MEMALIGN))
+    if (posix_memalign(&ptr, 64, size) != 0)
+      ptr = NULL;
+#elif defined(_WIN32)
+    ptr = _aligned_malloc(size, 64);
+#else
+    ptr = malloc(size);
+#endif
+  }
+  else
+  {
+    ptr = malloc(size);
+  }
+
   if(!ptr)
     THError("$ Torch: not enough memory: you tried to allocate %dGB. Buy new RAM!", size/1073741824);
 
@@ -99,11 +148,12 @@ void THFree(void *ptr)
   free(ptr);
 }
 
-#ifdef _MSC_VER
-double log1p(const double x)
+double THLog1p(const double x)
 {
-  volatile double y;
-  y = 1 + x;
+#ifdef _MSC_VER
+  volatile double y = 1 + x;
   return log(y) - ((y-1)-x)/y ;  /* cancels errors with IEEE arithmetic */
-}
+#else
+  return log1p(x);
 #endif
+}

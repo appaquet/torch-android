@@ -1,8 +1,17 @@
 
 -- We are using paths.require to appease mkl
-paths = {
-  require = require
-}
+
+-- Make this work with LuaJIT in Lua 5.2 compatibility mode, which
+-- renames string.gfind (already deprecated in 5.1)
+if not string.gfind then
+    string.gfind = string.gmatch
+end
+if not table.unpack then
+    table.unpack = unpack
+end
+
+require "paths"
+paths.require "libtorch"
 
 --- package stuff
 function torch.packageLuaPath(name)
@@ -11,9 +20,9 @@ function torch.packageLuaPath(name)
        if not ret then --windows?
            ret = string.match(torch.packageLuaPath('torch'), '(.*)\\')
        end
-       return ret 
+       return ret
    end
-   for path in string.gmatch(package.path, "(.-);") do
+   for path in string.gmatch(package.path, "[^;]+") do
       path = string.gsub(path, "%?", name)
       local f = io.open(path)
       if f then
@@ -27,9 +36,13 @@ function torch.packageLuaPath(name)
    end
 end
 
+local function include(file, depth)
+   paths.dofile(file, 3 + (depth or 0))
+end
+rawset(_G, 'include', include)
+
 function torch.include(package, file)
-   local req = package .. '.' .. file:gsub('.lua$','')
-   require(req)
+   dofile(torch.packageLuaPath(package) .. '/' .. file)
 end
 
 function torch.class(tname, parenttname)
@@ -42,7 +55,7 @@ function torch.class(tname, parenttname)
       end
       return self
    end
-   
+
    local function factory()
       local self = {}
       torch.setmetatable(self, tname)
@@ -67,11 +80,60 @@ function torch.setdefaulttensortype(typename)
    end
 end
 
-torch.setdefaulttensortype('torch.FloatTensor')
+function torch.type(obj)
+   local class = torch.typename(obj)
+   if not class then
+      class = type(obj)
+   end
+   return class
+end
 
-torch.include('torch','Tensor.lua')
-torch.include('torch','File.lua')
-torch.include('torch','CmdLine.lua')
-torch.include('torch','Tester.lua')
+--[[ See if a given object is an instance of the provided torch class. ]]
+function torch.isTypeOf(obj, typeSpec)
+  -- typeSpec can be provided as either a string, regexp, or the constructor. If
+  -- the constructor is used, we look in the __typename field of the
+  -- metatable to find a string to compare to.
+  if type(typeSpec) ~= 'string' then
+    typeSpec = getmetatable(typeSpec).__typename
+    assert(type(typeSpec) == 'string',
+           "type must be provided as [regexp] string, or factory")
+  end
+
+  local mt = getmetatable(obj)
+  while mt do
+    if mt.__typename and mt.__typename:find(typeSpec) then
+      return true
+    end
+    mt = getmetatable(mt)
+  end
+  return false
+end
+
+torch.setdefaulttensortype('torch.DoubleTensor')
+
+include('Tensor.lua')
+include('File.lua')
+include('CmdLine.lua')
+include('FFI.lua')
+include('Tester.lua')
+include('test.lua')
+
+function torch.totable(obj)
+  if torch.isTensor(obj) or torch.isStorage(obj) then
+    return obj:totable()
+  else
+    error("obj must be a Storage or a Tensor")
+  end
+end
+
+function torch.isTensor(obj)
+  return type(obj) == 'userdata' and torch.isTypeOf(obj, 'torch.*Tensor')
+end
+
+function torch.isStorage(obj)
+  return type(obj) == 'userdata' and torch.isTypeOf(obj, 'torch.*Storage')
+end
+-- alias for convenience
+torch.Tensor.isTensor = torch.isTensor
 
 return torch

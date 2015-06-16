@@ -1,27 +1,41 @@
+local wrap = require 'cwrap'
+package.path=package.path..';/home/robotbase/workspace/torch7-android/torch-android/src/pkg/torch/?.lua;'
+require 'torchcwrap'
+
 local interface = wrap.CInterface.new()
-print("CURRENT")
-print(arg[0])
-print("HHQ")
-package.path=package.path..';/home/robotbase/workspace/torch7-android/torch-android/src/pkg/torch/torchcwrap.lua;'
---/home/robotbase/workspace/torch7-android/torch-android/src/pkg/torch
-print(package.path)
-require('torchcwrap')
 
 interface:print(
    [[
 #include "luaT.h"
 #include "TH.h"
+
+extern void torch_Generator_init(lua_State *L);
+extern void torch_Generator_new(lua_State *L);
    ]])
 
 for _,name in ipairs({"seed", "initialSeed"}) do
    interface:wrap(name,
                   string.format("THRandom_%s",name),
-                  {{name="long", creturned=true}})
+                  {{name='Generator', default=true},
+                   {name="long", creturned=true}})
 end
 
 interface:wrap('manualSeed',
                'THRandom_manualSeed',
-               {{name="long"}})
+               {{name='Generator', default=true},
+                {name="long"}})
+
+interface:wrap('getRNGState',
+                'THByteTensor_getRNGState',
+                {{name='Generator', default=true},
+                 {name='ByteTensor',default=true,returned=true,method={default='nil'}}
+                 })
+
+interface:wrap('setRNGState',
+                'THByteTensor_setRNGState',
+                {{name='Generator', default=true},
+                 {name='ByteTensor',default=true,returned=true,method={default='nil'}}
+                 })
 
 interface:register("random__")
                 
@@ -29,8 +43,11 @@ interface:print(
    [[
 void torch_random_init(lua_State *L)
 {
-  luaL_register(L, NULL, random__);
+  torch_Generator_init(L);
+  torch_Generator_new(L);
+  lua_setfield(L, -2, "_gen");
+  luaT_setfuncs(L, random__, 0);
 }
-   ]])
+]])
 
 interface:tofile(arg[1])

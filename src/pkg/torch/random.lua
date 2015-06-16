@@ -1,4 +1,11 @@
 local interface = wrap.CInterface.new()
+print("CURRENT")
+print(arg[0])
+print("HHQ")
+package.path=package.path..';/home/robotbase/workspace/torch7-android/torch-android/src/pkg/torch/torchcwrap.lua;'
+--/home/robotbase/workspace/torch7-android/torch-android/src/pkg/torch
+print(package.path)
+require('torchcwrap')
 
 interface:print(
    [[

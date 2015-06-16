@@ -24,16 +24,23 @@
 -- WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -- 
 ----------------------------------------------------------------------
--- description:
---     xlua - lots of new trainable modules that extend the nn 
---            package.
---
--- history: 
---     July  5, 2011, 8:51PM - import from Torch5 - Clement Farabet
-----------------------------------------------------------------------
+
+require 'torch'
+require 'xlua'
+require 'nn'
 
 -- create global nnx table:
 nnx = {}
+
+-- c lib:
+require 'libnnx'
+
+-- for testing:
+torch.include('nnx', 'test-all.lua')
+torch.include('nnx', 'test-omp.lua')
+
+-- extensions of nn modules
+torch.include('nnx', 'Module.lua')
 
 -- tools:
 torch.include('nnx', 'Probe.lua')
@@ -62,15 +69,29 @@ torch.include('nnx', 'SpatialColorTransform.lua')
 torch.include('nnx', 'FunctionWrapper.lua')
 
 -- misc
-torch.include('nnx', 'Dropout.lua')
-torch.include('nnx', 'ReLU.lua')
 torch.include('nnx', 'SaturatedLU.lua')
 torch.include('nnx', 'Minus.lua')
+torch.include('nnx', 'SoftMaxTree.lua')
+torch.include('nnx', 'MultiSoftMax.lua')
+torch.include('nnx', 'Balance.lua')
+torch.include('nnx', 'NarrowLookupTable.lua')
+torch.include('nnx', 'PushTable.lua')
+torch.include('nnx', 'PullTable.lua')
+torch.include('nnx', 'ZeroGrad.lua')
+
+-- recurrent
+torch.include('nnx', 'AbstractRecurrent.lua')
+torch.include('nnx', 'Recurrent.lua')
+torch.include('nnx', 'LSTM.lua')
+torch.include('nnx', 'Repeater.lua')
+torch.include('nnx', 'Sequencer.lua')
 
 -- criterions:
 torch.include('nnx', 'SuperCriterion.lua')
 torch.include('nnx', 'DistNLLCriterion.lua')
 torch.include('nnx', 'DistMarginCriterion.lua')
+torch.include('nnx', 'TreeNLLCriterion.lua')
+torch.include('nnx', 'RepeaterCriterion.lua')
 
 -- datasets:
 torch.include('nnx', 'DataSet.lua')

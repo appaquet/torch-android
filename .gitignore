@@ -4,3 +4,6 @@ share
 src/build
 android-demo/local.properties
 android-demo/obj/
+android-demo/bin/
+android-demo/gen/
+android-demo/libs/

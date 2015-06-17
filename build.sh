@@ -26,7 +26,9 @@ cd src
 rm -rf build
 mkdir -p build
 cd build
-cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/android.toolchain.cmake .. -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DANDROID_STL=none
+
+cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/android.toolchain.cmake .. -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR -DANDROID_STL=none -DCMAKE_BUILD_TYPE=Release -DANDROID_TOOLCHAIN_NAME=arm-linux-androideabi-4.8 -DANDROID_NO_UNDEFINED=ON
+
 CMAKERET=$?
 if [ $CMAKERET -ne 0 ]; then
  echo "CMake error. Exiting."

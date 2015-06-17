@@ -2,3 +2,5 @@ include
 lib
 share
 src/build
+android-demo/local.properties
+android-demo/obj/

@@ -69,6 +69,16 @@ cp -r src/3rdparty/nnx/*.lua share/lua/5.1/nnx/
 
 mkdir -p share/lua/5.1/imgraph
 cp -r src/3rdparty/imgraph/*.lua share/lua/5.1/imgraph/
+
+mkdir -p share/lua/5.1/paths
+cp -r src/3rdparty/paths/*.lua share/lua/5.1/paths/
+
+mkdir -p share/lua/5.1/xlua
+cp -r src/3rdparty/xlua/*.lua share/lua/5.1/xlua/
+
+mkdir -p share/lua/5.1/sys
+cp -r src/3rdparty/sys/*.lua share/lua/5.1/sys/
+
 echo "done"
 
 #remove cmake files in framework

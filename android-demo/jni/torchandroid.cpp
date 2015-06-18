@@ -10,10 +10,11 @@ FILE* android_fopen(const char* fname, const char* mode);
 static const luaL_reg lualibs[] =
   {
     { "base",       luaopen_base },
-    { "libtorch",   luaopen_libtorch },
+    { "torch",   luaopen_libtorch },
     { "nn",         luaopen_libnn },
     { "nnx",        luaopen_libnnx },
     { "image",      luaopen_libimage },
+    { "paths",      luaopen_libpaths },
     { NULL,         NULL }
   };
 

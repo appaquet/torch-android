@@ -10,8 +10,9 @@ if not table.unpack then
     table.unpack = unpack
 end
 
-require "paths"
-paths.require "libtorch"
+-- require "paths"
+
+-- paths.require "libtorch"
 
 --- package stuff
 function torch.packageLuaPath(name)
@@ -42,7 +43,9 @@ end
 rawset(_G, 'include', include)
 
 function torch.include(package, file)
-   dofile(torch.packageLuaPath(package) .. '/' .. file)
+   local req = package .. '.' .. file:gsub('.lua$','')
+   require(req)
+   -- dofile(torch.packageLuaPath(package) .. '/' .. file)
 end
 
 function torch.class(tname, parenttname)
@@ -111,12 +114,11 @@ end
 
 torch.setdefaulttensortype('torch.DoubleTensor')
 
-include('Tensor.lua')
-include('File.lua')
-include('CmdLine.lua')
-include('FFI.lua')
-include('Tester.lua')
-include('test.lua')
+torch.include('torch', 'Tensor.lua')
+torch.include('torch', 'File.lua')
+torch.include('torch', 'CmdLine.lua')
+torch.include('torch', 'FFI.lua')
+torch.include('torch', 'Tester.lua')
 
 function torch.totable(obj)
   if torch.isTensor(obj) or torch.isStorage(obj) then

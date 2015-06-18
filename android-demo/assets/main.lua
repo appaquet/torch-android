@@ -2,10 +2,6 @@
 -- Script: main.lua
 -- Copyright (C) 2013 Soumith Chintala
 
-require 'torch'
-require 'nnx'
-require 'dok'
-require 'image'
 
 function demoluafn()
    ret = 'Called demo function from inside lua'
@@ -14,6 +10,11 @@ function demoluafn()
 end
 
 print("Hello from Lua")
+
+require 'torch'
+require 'nnx'
+require 'dok'
+require 'image'
 
 torch.setdefaulttensortype('torch.FloatTensor')
 -- Doing a small benchmark of the convolution module

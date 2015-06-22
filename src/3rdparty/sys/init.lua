@@ -12,9 +12,9 @@ sys = {}
 -- load all functions from lib
 --------------------------------------------------------------------------------
 -- local _lib = require 'libsys'
-for k,v in pairs(_lib) do
-   sys[k] = v
-end
+-- for k,v in pairs(_lib) do
+--    sys[k] = v
+-- end
 
 --------------------------------------------------------------------------------
 -- tic/toc (matlab-like) timers

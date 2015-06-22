@@ -1,5 +1,5 @@
 local wrap = require 'cwrap'
-package.path=package.path..';/home/robotbase/workspace/torch7-android/torch-android/src/pkg/torch/?.lua;'
+package.path=package.path..';../../../pkg/torch/?.lua;'
 require 'torchcwrap'
 
 local interface = wrap.CInterface.new()

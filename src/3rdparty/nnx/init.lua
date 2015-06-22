@@ -33,7 +33,7 @@ require 'nn'
 nnx = {}
 
 -- c lib:
-require 'libnnx'
+-- require 'libnnx'
 
 -- for testing:
 torch.include('nnx', 'test-all.lua')

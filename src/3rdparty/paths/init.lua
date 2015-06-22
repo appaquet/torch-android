@@ -1,4 +1,4 @@
-require 'libpaths'
+-- require 'libpaths'
 
 local assert = assert
 local debug = debug

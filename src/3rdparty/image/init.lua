@@ -33,7 +33,7 @@ require 'torch'
 require 'sys'
 require 'xlua'
 require 'dok'
-require 'libimage'
+-- require 'libimage'
 
 ----------------------------------------------------------------------
 -- types lookups

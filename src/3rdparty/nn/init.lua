@@ -1,5 +1,5 @@
 require('torch')
-require('libnn')
+-- require('libnn')
 
 include('utils.lua')
 

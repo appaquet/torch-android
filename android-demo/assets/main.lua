@@ -5,9 +5,11 @@
 
 function demoluafn()
    ret = 'Called demo function from inside lua'
-   print()
+   print(ret)
    return ret
 end
+
+demoluafn()
 
 print("Hello from Lua")
 
@@ -26,7 +28,7 @@ num_ops = 2 -- 2 ops, i.e one for multiply and one for accumulate
 
 test_tensor = torch.rand(in_planes,imsz_x,imsz_y)
 
-for kernel_sz=1,16 do
+for kernel_sz=1,2 do
    local model = nn.SpatialConvolution(in_planes,out_planes,kernel_sz,kernel_sz)
    tstart = os.clock()
    output1 = model:forward(test_tensor)
@@ -40,3 +42,8 @@ for kernel_sz=1,16 do
    print('Gops/s: ' .. (  total_ops/( (tend-tstart) * 1e9)))
    print('-------------------------------------------------------------------------------------------')
 end
+
+output_str = "hello, from lua to C"
+
+
+

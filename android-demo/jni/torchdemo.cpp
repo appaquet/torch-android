@@ -36,10 +36,22 @@ extern "C" {
       D(lua_tostring(L,-1));
       strlcat(buffer, lua_tostring(L,-1), sizeof(buffer));
     }
-    else
-      strlcat(buffer,
-              "Torch script ran succesfully. Check Logcat for more details.",
-              sizeof(buffer));
+    else {
+	  lua_getfield(L, LUA_GLOBALSINDEX, "imsz_x");
+	  
+	  lua_Number imsz_x = lua_tonumber(L,-1);
+	  
+	  size_t len;
+	  lua_getfield(L, LUA_GLOBALSINDEX, "output_str");
+	  
+	  const char     * str = lua_tolstring(L, -1, &len);
+
+	  sprintf(buffer,"imsz_x = %0f; output_str=%s; len=%d",imsz_x,str,len);
+	  
+      //strlcat(buffer,
+      //        "Torch script ran succesfully. Check Logcat for more details.",
+      //        sizeof(buffer));
+    }
     // destroy the Lua State
     lua_close(L);
     return env->NewStringUTF(buffer);

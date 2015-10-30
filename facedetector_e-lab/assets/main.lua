@@ -10,6 +10,7 @@ require 'torch'
 require 'nnx'
 require 'dok'
 require 'image'
+require 'audio'
 
 network = torch.load('face.net.arm','r','apk'):float()
 

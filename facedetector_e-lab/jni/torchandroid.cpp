@@ -12,6 +12,8 @@ static const luaL_reg lualibs[] =
     { "nn",         luaopen_libnn },
     { "nnx",        luaopen_libnnx },
     { "image",      luaopen_libimage },
+    { "paths",      luaopen_libpaths },
+    { "audio",      luaopen_libaudio },
     { NULL,         NULL }
   };
 
@@ -34,7 +36,7 @@ static int landroid_print(lua_State* L) {
   int nargs = lua_gettop(L);
   for (int i=1; i <= nargs; i++) {
     if (lua_isstring(L, i)) {
-      D(lua_tostring(L, i));
+      D("From LUA: %s", lua_tostring(L, i));
     }
   }
   return 0;

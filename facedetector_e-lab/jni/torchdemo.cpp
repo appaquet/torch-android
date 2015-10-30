@@ -90,8 +90,10 @@ extern "C" {
       ret = luaL_dobuffer(L, filebytes, size, "main");
       if (ret == 1) {
 	D("Torch Error doing resource: %s\n", file);
-	D(lua_tostring(L,-1));
+	//D(lua_tostring(L,-1));
+	    __android_log_print(ANDROID_LOG_INFO, "Torchandroid", "Torch script error %s", lua_tostring(L,-1));
       } else {
+	    __android_log_print(ANDROID_LOG_INFO, "Torchandroid", "Torch script loaded");
 	D("Torch script ran succesfully.");
       }
     }

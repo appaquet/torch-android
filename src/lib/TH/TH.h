@@ -19,6 +19,9 @@
 
 #include "THFile.h"
 #include "THDiskFile.h"
+#ifdef __ANDROID__
+#include "THApkFile.h"
+#endif
 #include "THMemoryFile.h"
 
 #endif

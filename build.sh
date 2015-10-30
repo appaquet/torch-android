@@ -64,6 +64,9 @@ cp -r src/3rdparty/nn/*.lua share/lua/5.1/nn/
 mkdir -p share/lua/5.1/image
 cp -r src/3rdparty/image/*.lua share/lua/5.1/image/
 
+mkdir -p share/lua/5.1/audio
+cp -r src/3rdparty/audio/*.lua share/lua/5.1/audio/
+
 mkdir -p share/lua/5.1/nnx
 cp -r src/3rdparty/nnx/*.lua share/lua/5.1/nnx/
 
